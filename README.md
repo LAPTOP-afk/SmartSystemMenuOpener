@@ -1,6 +1,6 @@
 # SmartSystemMenuOpener
 # 支持Windows版本
-Windows Vista/7/8/8.1/10(由于技术原因，不支持Windows11)
+Windows Vista/7/8/8.1/10(由于技术原因，Bat和Exe不支持Windows11)
 # 更新说明
 暂无。
 # SmartSystemMenu版本
