@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart System Menu Opener</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+  
+  <!-- 自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            accent: '#FF7D00',
+            dark: '#1D2129',
+            light: '#F2F3F5'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .bg-gradient-blue {
+        background: linear-gradient(135deg, #165DFF 0%, #36CFC9 100%);
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .transition-all-300 {
+        transition: all 300ms ease-in-out;
+      }
+      .hover-scale {
+        transition: transform 0.3s ease;
+      }
+      .hover-scale:hover {
+        transform: scale(1.05);
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen flex flex-col">
+  <!-- 登录页面 -->
+  <div id="login-page" class="flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
+      <div class="bg-gradient-blue p-6 text-white">
+        <h1 class="text-2xl font-bold text-shadow">Smart System Menu</h1>
+        <p class="mt-2 opacity-90">系统工具访问中心</p>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">用户名</label>
+            <div class="mt-1">
+              <input id="username" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="请输入用户名">
+            </div>
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">密码</label>
+            <div class="mt-1">
+              <input id="password" type="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="请输入密码">
+            </div>
+          </div>
+          <div class="pt-2">
+            <button id="login-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-md transition-all-300 flex items-center justify-center">
+              <i class="fa fa-sign-in mr-2"></i> 登录
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主页面 -->
+  <div id="main-page" class="hidden flex-1 flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-primary text-white shadow-md">
+      <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center">
+          <i class="fa fa-bars mr-2 cursor-pointer hover:text-gray-200 transition-all-300" id="menu-toggle"></i>
+          <h1 class="text-xl font-bold">Smart System Menu</h1>
+        </div>
+        <div>
+          <button id="logout-btn" class="flex items-center hover:text-gray-200 transition-all-300">
+            <i class="fa fa-sign-out mr-1"></i> 退出
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 flex overflow-hidden">
+      <!-- 侧边栏 -->
+      <aside id="sidebar" class="w-64 bg-white shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:relative h-full z-20">
+        <div class="p-4 border-b">
+          <h2 class="font-semibold text-gray-800">系统工具</h2>
+        </div>
+        <nav class="p-4">
+          <ul class="space-y-2">
+            <li>
+              <button id="open-menu-btn" class="w-full text-left px-4 py-2 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-all-300 flex items-center">
+                <i class="fa fa-th-large mr-2"></i> 打开 Smart System Menu
+              </button>
+            </li>
+            <li>
+              <button id="download-section-btn" class="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 transition-all-300 flex items-center">
+                <i class="fa fa-download mr-2"></i> 下载管理器
+              </button>
+            </li>
+            <li>
+              <button id="system-info-btn" class="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 transition-all-300 flex items-center">
+                <i class="fa fa-info-circle mr-2"></i> 系统信息
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- 遮罩层 -->
+      <div id="overlay" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+      <!-- 内容区 -->
+      <div class="flex-1 overflow-auto p-4 md:p-6">
+        <!-- 欢迎区域 -->
+        <div id="welcome-section" class="mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">欢迎使用 Smart System Menu Opener</h2>
+            <p class="text-gray-600">这是一个基于网页的工具，可帮助您快速访问 Windows 系统功能和管理下载任务。</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl shadow-sm p-5 hover-scale">
+              <div class="text-primary text-3xl mb-3">
+                <i class="fa fa-windows"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">系统菜单</h3>
+              <p class="text-gray-600 text-sm">快速访问 Windows 系统菜单，获取常用功能。</p>
+              <button id="open-menu-card-btn" class="mt-4 text-primary text-sm flex items-center hover:underline">
+                打开 <i class="fa fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-5 hover-scale">
+              <div class="text-accent text-3xl mb-3">
+                <i class="fa fa-download"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">下载管理</h3>
+              <p class="text-gray-600 text-sm">设置下载链接和路径，管理您的下载任务。</p>
+              <button id="download-card-btn" class="mt-4 text-accent text-sm flex items-center hover:underline">
+                管理 <i class="fa fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-5 hover-scale">
+              <div class="text-secondary text-3xl mb-3">
+                <i class="fa fa-info-circle"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">系统信息</h3>
+              <p class="text-gray-600 text-sm">查看您的 Windows 系统版本和配置信息。</p>
+              <button id="info-card-btn" class="mt-4 text-secondary text-sm flex items-center hover:underline">
+                查看 <i class="fa fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 下载管理器区域 -->
+        <div id="download-section" class="hidden mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6 mb-4">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">下载管理器</h2>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">下载链接</label>
+              <div class="flex">
+                <input id="download-url" type="text" class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="https://example.com/file.zip">
+                <button id="change-url-btn" class="bg-primary text-white px-4 py-2 rounded-r-md hover:bg-primary/90 transition-all-300">
+                  更改
+                </button>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">保存路径</label>
+              <div class="flex">
+                <input id="save-path" type="text" class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="C:\Downloads\file.zip">
+                <button id="change-path-btn" class="bg-primary text-white px-4 py-2 rounded-r-md hover:bg-primary/90 transition-all-300">
+                  更改
+                </button>
+              </div>
+            </div>
+            
+            <div class="pt-2">
+              <button id="start-download-btn" class="w-full bg-accent hover:bg-accent/90 text-white font-medium py-2 px-4 rounded-md transition-all-300 flex items-center justify-center">
+                <i class="fa fa-download mr-2"></i> 开始下载
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 系统信息区域 -->
+        <div id="system-info-section" class="hidden mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">系统信息</h2>
+            
+            <div class="space-y-4">
+              <div class="p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium text-gray-700 mb-2">操作系统</h3>
+                <p id="os-info" class="text-gray-600">Windows 版本: 检测中...</p>
+                <p id="browser-info" class="text-gray-600">浏览器: 检测中...</p>
+              </div>
+              
+              <div class="p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium text-gray-700 mb-2">Smart System Menu 支持情况</h3>
+                <p id="menu-support" class="text-gray-600">检测中...</p>
+                <div id="menu-instructions" class="hidden mt-2 text-sm text-gray-500 bg-blue-50 p-3 rounded">
+                  <p>由于浏览器安全限制，直接打开 Smart System Menu 可能不可用。</p>
+                  <p>您可以尝试以下替代方法：</p>
+                  <ul class="list-disc ml-5 mt-1 space-y-1">
+                    <li>复制命令到剪贴板，然后在命令提示符中执行</li>
+                    <li>下载快捷方式文件，双击运行</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="pt-2">
+                <button id="check-menu-support-btn" class="w-full bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-md transition-all-300 flex items-center justify-center">
+                  <i class="fa fa-refresh mr-2"></i> 重新检测
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Smart System Menu 区域 -->
+        <div id="smart-menu-section" class="hidden mb-6">
+          <div class="bg-white rounded-xl shadow-sm p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Smart System Menu</h2>
+            
+            <div class="p-4 bg-gray-50 rounded-lg mb-4">
+              <p class="text-gray-600 mb-3">点击下方按钮尝试打开 Windows 系统菜单。</p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button id="try-open-menu-btn" class="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-md transition-all-300 flex items-center justify-center">
+                  <i class="fa fa-th-large mr-2"></i> 尝试打开系统菜单
+                </button>
+                
+                <button id="copy-command-btn" class="bg-gray-700 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md transition-all-300 flex items-center justify-center">
+                  <i class="fa fa-clipboard mr-2"></i> 复制命令到剪贴板
+                </button>
+              </div>
+              
+              <div class="mt-4">
+                <div class="flex items-center justify-center">
+                  <span id="copy-success" class="hidden text-green-600 text-sm flex items-center">
+                    <i class="fa fa-check-circle mr-1"></i> 已复制到剪贴板
+                  </span>
+                </div>
+                <div class="mt-2 bg-gray-100 p-3 rounded text-sm font-mono select-all" id="menu-command">
+                  explorer.exe shell:::{BB06C0E4-D293-4f75-8A90-CB05B6477EEE}
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-4 bg-gray-50 rounded-lg">
+              <h3 class="font-medium text-gray-700 mb-2">替代方法：下载快捷方式</h3>
+              <p class="text-gray-600 mb-3">如果直接打开失败，可以下载快捷方式文件，然后双击运行。</p>
+              
+              <button id="download-shortcut-btn" class="bg-accent hover:bg-accent/90 text-white font-medium py-2 px-4 rounded-md transition-all-300 flex items-center justify-center">
+                <i class="fa fa-download mr-2"></i> 下载快捷方式 (.bat)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 提示框 -->
+  <div id="toast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-dark text-white px-4 py-2 rounded-md shadow-lg opacity-0 transition-opacity duration-300 z-50">
+    <span id="toast-message"></span>
+  </div>
+
+  <script>
+    // 模拟的用户名和密码
+    const correctUsername = "admin";
+    const correctPassword = "password";
+    
+    // 存储下载设置
+    let downloadSettings = {
+      url: "https://example.com/sample.zip",
+      path: "C:\\Downloads\\downloaded_file.zip"
+    };
+    
+    // DOM 元素
+    const loginPage = document.getElementById('login-page');
+    const mainPage = document.getElementById('main-page');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const welcomeSection = document.getElementById('welcome-section');
+    const downloadSection = document.getElementById('download-section');
+    const systemInfoSection = document.getElementById('system-info-section');
+    const smartMenuSection = document.getElementById('smart-menu-section');
+    const openMenuBtn = document.getElementById('open-menu-btn');
+    const downloadSectionBtn = document.getElementById('download-section-btn');
+    const systemInfoBtn = document.getElementById('system-info-btn');
+    const openMenuCardBtn = document.getElementById('open-menu-card-btn');
+    const downloadCardBtn = document.getElementById('download-card-btn');
+    const infoCardBtn = document.getElementById('info-card-btn');
+    const downloadUrlInput = document.getElementById('download-url');
+    const savePathInput = document.getElementById('save-path');
+    const changeUrlBtn = document.getElementById('change-url-btn');
+    const changePathBtn = document.getElementById('change-path-btn');
+    const startDownloadBtn = document.getElementById('start-download-btn');
+    const osInfoElement = document.getElementById('os-info');
+    const browserInfoElement = document.getElementById('browser-info');
+    const menuSupportElement = document.getElementById('menu-support');
+    const menuInstructions = document.getElementById('menu-instructions');
+    const checkMenuSupportBtn = document.getElementById('check-menu-support-btn');
+    const tryOpenMenuBtn = document.getElementById('try-open-menu-btn');
+    const copyCommandBtn = document.getElementById('copy-command-btn');
+    const copySuccess = document.getElementById('copy-success');
+    const downloadShortcutBtn = document.getElementById('download-shortcut-btn');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    // 初始化
+    function init() {
+      // 设置输入框初始值
+      downloadUrlInput.value = downloadSettings.url;
+      savePathInput.value = downloadSettings.path;
+      
+      // 检测系统信息
+      detectSystemInfo();
+      
+      // 事件监听器
+      loginBtn.addEventListener('click', handleLogin);
+      logoutBtn.addEventListener('click', handleLogout);
+      menuToggle.addEventListener('click', toggleSidebar);
+      overlay.addEventListener('click', toggleSidebar);
+      
+      // 侧边栏导航按钮
+      openMenuBtn.addEventListener('click', () => showSection('smart-menu-section'));
+      downloadSectionBtn.addEventListener('click', () => showSection('download-section'));
+      systemInfoBtn.addEventListener('click', () => showSection('system-info-section'));
+      
+      // 卡片导航按钮
+      openMenuCardBtn.addEventListener('click', () => showSection('smart-menu-section'));
+      downloadCardBtn.addEventListener('click', () => showSection('download-section'));
+      infoCardBtn.addEventListener('click', () => showSection('system-info-section'));
+      
+      // 下载设置按钮
+      changeUrlBtn.addEventListener('click', changeDownloadUrl);
+      changePathBtn.addEventListener('click', changeDownloadPath);
+      startDownloadBtn.addEventListener('click', startDownload);
+      
+      // 系统菜单按钮
+      checkMenuSupportBtn.addEventListener('click', detectSystemInfo);
+      tryOpenMenuBtn.addEventListener('click', tryOpenSystemMenu);
+      copyCommandBtn.addEventListener('click', copyCommandToClipboard);
+      downloadShortcutBtn.addEventListener('click', downloadShortcut);
+    }
+    
+    // 登录处理
+    function handleLogin() {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      if (username === correctUsername && password === correctPassword) {
+        loginPage.classList.add('hidden');
+        mainPage.classList.remove('hidden');
+        showToast('登录成功！', 'success');
+      } else {
+        showToast('用户名或密码错误！', 'error');
+      }
+    }
+    
+    // 退出登录
+    function handleLogout() {
+      mainPage.classList.add('hidden');
+      loginPage.classList.remove('hidden');
+      usernameInput.value = '';
+      passwordInput.value = '';
+      showToast('已退出登录', 'info');
+    }
+    
+    // 切换侧边栏
+    function toggleSidebar() {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+    
+    // 显示指定部分
+    function showSection(sectionId) {
+      welcomeSection.classList.add('hidden');
+      downloadSection.classList.add('hidden');
+      systemInfoSection.classList.add('hidden');
+      smartMenuSection.classList.add('hidden');
+      
+      document.getElementById(sectionId).classList.remove('hidden');
+      
+      // 在移动设备上点击导航后自动关闭侧边栏
+      if (window.innerWidth < 768) {
+        toggleSidebar();
+      }
+    }
+    
+    // 更改下载链接
+    function changeDownloadUrl() {
+      const newUrl = prompt('请输入新的下载链接：', downloadSettings.url);
+      if (newUrl !== null && newUrl.trim() !== '') {
+        downloadSettings.url = newUrl.trim();
+        downloadUrlInput.value = downloadSettings.url;
+        showToast('下载链接已更新', 'success');
+      }
+    }
+    
+    // 更改下载路径
+    function changeDownloadPath() {
+      const newPath = prompt('请输入新的下载路径：', downloadSettings.path);
+      if (newPath !== null && newPath.trim() !== '') {
+        downloadSettings.path = newPath.trim();
+        savePathInput.value = downloadSettings.path;
+        showToast('保存路径已更新', 'success');
+      }
+    }
+    
+    // 开始下载
+    function startDownload() {
+      const url = downloadUrlInput.value.trim();
+      const path = savePathInput.value.trim();
+      
+      if (!url) {
+        showToast('请输入有效的下载链接', 'error');
+        return;
+      }
+      
+      // 由于浏览器安全限制，无法直接控制保存路径
+      // 这里只能尝试触发浏览器的下载
+      try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = path.split('\\').pop() || 'downloaded_file';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('下载已开始，请检查浏览器下载栏', 'success');
+      } catch (error) {
+        showToast('无法开始下载：' + error.message, 'error');
+      }
+    }
+    
+    // 检测系统信息
+    function detectSystemInfo() {
+      const userAgent = navigator.userAgent.toLowerCase();
+      let osInfo = '未知操作系统';
+      let browserInfo = '未知浏览器';
+      let menuSupport = '未知';
+      
+      // 检测操作系统
+      if (userAgent.indexOf('windows') !== -1) {
+        if (userAgent.indexOf('windows nt 10.0') !== -1) {
+          osInfo = 'Windows 10 或 Windows 11';
+          
+          // 尝试区分 Windows 10 和 11
+          if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+            osInfo += ' (触摸设备)';
+          }
+          
+          // Windows 11 部分支持
+          menuSupport = '<span class="text-yellow-600">部分支持</span>：Windows 11 已简化系统菜单，传统方法可能有限制';
+          menuInstructions.classList.remove('hidden');
+        } else if (userAgent.indexOf('windows nt 6.1') !== -1) {
+          osInfo = 'Windows 7';
+          menuSupport = '<span class="text-green-600">完全支持</span>';
+        } else if (userAgent.indexOf('windows nt 6.0') !== -1) {
+          osInfo = 'Windows Vista';
+          menuSupport = '<span class="text-green-600">完全支持</span>';
+        } else if (userAgent.indexOf('windows nt 6.2') !== -1 || userAgent.indexOf('windows nt 6.3') !== -1) {
+          osInfo = 'Windows 8 或 Windows 8.1';
+          menuSupport = '<span class="text-green-600">完全支持</span>';
+        } else {
+          osInfo = 'Windows (版本无法确定)';
+          menuSupport = '<span class="text-yellow-600">可能支持</span>';
+        }
+      } else {
+        osInfo = '非 Windows 系统';
+        menuSupport = '<span class="text-red-600">不支持</span>：Smart System Menu 是 Windows 系统特有的功能';
+        menuInstructions.classList.remove('hidden');
+      }
+      
+      // 检测浏览器
+      if (userAgent.indexOf('chrome') !== -1) {
+        browserInfo = 'Chrome';
+      } else if (userAgent.indexOf('firefox') !== -1) {
+        browserInfo = 'Firefox';
+      } else if (userAgent.indexOf('safari') !== -1) {
+        browserInfo = 'Safari';
+      } else if (userAgent.indexOf('edge') !== -1) {
+        browserInfo = 'Edge';
+      } else if (userAgent.indexOf('trident') !== -1) {
+        browserInfo = 'Internet Explorer';
+      } else {
+        browserInfo = '其他浏览器';
+      }
+      
+      // 更新UI
+      osInfoElement.innerHTML = `Windows 版本: ${osInfo}`;
+      browserInfoElement.innerHTML = `浏览器: ${browserInfo}`;
+      menuSupportElement.innerHTML = `Smart System Menu 支持: ${menuSupport}`;
+    }
+    
+    // 尝试打开系统菜单
+    function tryOpenSystemMenu() {
+      // 由于浏览器安全限制，无法直接执行系统命令
+      // 这里只能提供信息给用户
+      showToast('由于浏览器安全限制，无法直接打开系统菜单。请使用替代方法。', 'warning');
+    }
+    
+    // 复制命令到剪贴板
+    function copyCommandToClipboard() {
+      const command = 'explorer.exe shell:::{BB06C0E4-D293-4f75-8A90-CB05B6477EEE}';
+      
+      navigator.clipboard.writeText(command)
+        .then(() => {
+          copySuccess.classList.remove('hidden');
+          setTimeout(() => {
+            copySuccess.classList.add('hidden');
+          }, 2000);
+          showToast('命令已复制到剪贴板', 'success');
+        })
+        .catch(err => {
+          showToast('无法复制到剪贴板：' + err.message, 'error');
+        });
+    }
+    
+    // 下载快捷方式
+    function downloadShortcut() {
+      const content = '@echo off\nexplorer.exe shell:::{BB06C0E4-D293-4f75-8A90-CB05B6477EEE}\nexit';
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'OpenSmartSystemMenu.bat';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      showToast('快捷方式已下载，请双击运行', 'success');
+    }
+    
+    // 显示提示框
+    function showToast(message, type = 'info') {
+      // 设置提示框样式
+      if (type === 'success') {
+        toast.classList.remove('bg-dark', 'bg-red-500', 'bg-yellow-500');
+        toast.classList.add('bg-green-500');
+      } else if (type === 'error') {
+        toast.classList.remove('bg-dark', 'bg-green-500', 'bg-yellow-500');
+        toast.classList.add('bg-red-500');
+      } else if (type === 'warning') {
+        toast.classList.remove('bg-dark', 'bg-green-500', 'bg-red-500');
+        toast.classList.add('bg-yellow-500');
+      } else {
+        toast.classList.remove('bg-green-500', 'bg-red-500', 'bg-yellow-500');
+        toast.classList.add('bg-dark');
+      }
+      
+      // 显示提示框
+      toastMessage.textContent = message;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      
+      // 3秒后隐藏提示框
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 3000);
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
